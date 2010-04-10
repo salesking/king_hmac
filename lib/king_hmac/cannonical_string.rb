@@ -1,4 +1,4 @@
-module Hmac
+module KingHmac
   # Build a Canonical String for a HTTP request.
   #
   # A Canonical String has the following format:

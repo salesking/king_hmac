@@ -1,4 +1,4 @@
-module Hmac
+module KingHmac
   # This module provides a HMAC Authentication method for HTTP requests. It should work with
   # net/http request classes and CGIRequest classes and hence Rails.
   #
@@ -15,27 +15,27 @@ module Hmac
   #
   class Auth
    
-    include Hmac::Headers
+    include KingHmac::Headers
    
 
-    @@default_signature_class = Hmac::CanonicalString
+    @@default_signature_class = KingHmac::CanonicalString
 
-    # Create an Hmac::Auth instance using the given credential store
+    # Create an KingHmac::Auth instance using the given credential store
     #
     # Credential Store:
     # * Credential store must respond to the [] method and return a secret for access key id
     # 
     # Options:
     # Override default options
-    # *  <tt>:service_id</tt> - Service ID used in the AUTHORIZATION header string. Default is Hmac::Auth.
+    # *  <tt>:service_id</tt> - Service ID used in the AUTHORIZATION header string. Default is KingHmac::Auth.
     # *  <tt>:signature_method</tt> - Proc object that takes request and produces the signature string
     #                                 used for authentication. Default is CanonicalString.
     # Examples:
-    #   my_hmac = Hmac::Auth.new('access_id1' => 'secret1', 'access_id2' => 'secret2')
+    #   my_hmac = KingHmac::Auth.new('access_id1' => 'secret1', 'access_id2' => 'secret2')
     #
     #   cred_store = { 'access_id1' => 'secret1', 'access_id2' => 'secret2' }
     #   options = { :service_id => 'MyApp', :signature_method => lambda { |r| MyRequestString.new(r) } }
-    #   my_hmac = Hmac::Auth.new(cred_store, options)
+    #   my_hmac = KingHmac::Auth.new(cred_store, options)
     #   
     def initialize(credential_store, options = nil)
       @credential_store = credential_store
@@ -54,7 +54,7 @@ module Hmac
 
     # Generates canonical signing string for given request
     #
-    # Supports same options as Hmac::Auth.initialize for overriding service_id and
+    # Supports same options as KingHmac::Auth.initialize for overriding service_id and
     # signature method.
     # 
     def self.canonical_string(request, options = nil)
@@ -63,7 +63,7 @@ module Hmac
 
     # Generates signature string for a given secret
     #
-    # Supports same options as Hmac::Auth.initialize for overriding service_id and
+    # Supports same options as KingHmac::Auth.initialize for overriding service_id and
     # signature method.
     # 
     def self.signature(request, secret, options = nil)
@@ -72,7 +72,7 @@ module Hmac
 
     # Signs a request using a given access key id and secret.
     #
-    # Supports same options as Hmac::Auth.initialize for overriding service_id and
+    # Supports same options as KingHmac::Auth.initialize for overriding service_id and
     # signature method.
     # 
     def self.sign!(request, access_key_id, secret, options = nil)
@@ -82,7 +82,7 @@ module Hmac
     
     # Authenticates a request using HMAC
     #
-    # Supports same options as Hmac::Auth.initialize for overriding service_id and
+    # Supports same options as KingHmac::Auth.initialize for overriding service_id and
     # signature method.
     # 
     def self.authenticated?(request, access_key_id, secret, options)
@@ -107,7 +107,7 @@ module Hmac
     
     # Authenticates a request using HMAC
     #
-    # Returns true if the request has an Hmac::Auth Authorization header and
+    # Returns true if the request has an KingHmac::Auth Authorization header and
     # the access id and HMAC match an id and HMAC produced for the secret
     # in the credential store. Otherwise returns false.
     #

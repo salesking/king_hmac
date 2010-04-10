@@ -1,1 +1,1 @@
-require "#{File.dirname(__FILE__)}/lib/hmac"
+require "#{File.dirname(__FILE__)}/lib/king_hmac"

@@ -1,4 +1,4 @@
-module Hmac
+module KingHmac
   module Headers # :nodoc:
     # Gets the headers for a request.
     #

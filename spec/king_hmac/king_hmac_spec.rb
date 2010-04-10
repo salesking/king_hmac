@@ -13,7 +13,7 @@ def signature(value, secret)
   Base64.encode64(OpenSSL::HMAC.digest(digest, secret, value)).strip
 end
 
-describe Hmac::Auth do
+describe KingHmac::Auth do
   before(:each) do
     @request = Net::HTTP::Put.new("/path/to/put?foo=bar&bar=foo", 
       'content-type' => 'text/plain', 
@@ -23,13 +23,13 @@ describe Hmac::Auth do
 
   describe ".canonical_string" do
     it "should generate a canonical string using default method" do
-      Hmac::Auth.canonical_string(@request).should == "PUT\ntext/plain\nblahblah\nThu, 10 Jul 2008 03:29:56 GMT\n/path/to/put"
+      KingHmac::Auth.canonical_string(@request).should == "PUT\ntext/plain\nblahblah\nThu, 10 Jul 2008 03:29:56 GMT\n/path/to/put"
     end
   end
   
   describe ".signature" do
     it "should generate a valid signature string for a secret" do
-      Hmac::Auth.signature(@request, 'secret').should == "71wAJM4IIu/3o6lcqx/tw7XnAJs="
+      KingHmac::Auth.signature(@request, 'secret').should == "71wAJM4IIu/3o6lcqx/tw7XnAJs="
     end
   end
 
@@ -42,12 +42,12 @@ describe Hmac::Auth do
     end
 
     it "should sign using the key passed in as a parameter" do
-     Hmac::Auth.sign!(@request, "my-key-id", "secret")
-     @request['Authorization'].should == "Hmac::Auth my-key-id:71wAJM4IIu/3o6lcqx/tw7XnAJs="
+     KingHmac::Auth.sign!(@request, "my-key-id", "secret")
+     @request['Authorization'].should == "KingHmac::Auth my-key-id:71wAJM4IIu/3o6lcqx/tw7XnAJs="
     end
 
     it "should sign using custom service id" do
-      Hmac::Auth.sign!(@request, "my-key-id", "secret", { :service_id => 'MyService' })
+      KingHmac::Auth.sign!(@request, "my-key-id", "secret", { :service_id => 'MyService' })
       @request['Authorization'].should == "MyService my-key-id:71wAJM4IIu/3o6lcqx/tw7XnAJs="
     end
 
@@ -56,7 +56,7 @@ describe Hmac::Auth do
         :service_id => 'MyService',
         :signature => CustomSignature
       }
-      Hmac::Auth.sign!(@request, "my-key-id", "secret", options)
+      KingHmac::Auth.sign!(@request, "my-key-id", "secret", options)
       @request['Authorization'].should == "MyService my-key-id:/L4N1v1BZSHfAYkQjsvZn696D9c="
     end
   end
@@ -70,10 +70,10 @@ describe Hmac::Auth do
         'date' => "Thu, 10 Jul 2008 03:29:56 GMT")
        @store = mock('store')
       @store.stub!(:[]).and_return("")
-      @authhmac = Hmac::Auth.new(@store)
+      @authhmac = KingHmac::Auth.new(@store)
     end
 
-    describe "default Hmac::Auth with CanonicalString signature" do
+    describe "default KingHmac::Auth with CanonicalString signature" do
       it "should add an Authorization header" do
         @authhmac.sign!(@get_request, 'key-id')
         @get_request.key?("Authorization").should be_true
@@ -84,14 +84,14 @@ describe Hmac::Auth do
         @authhmac.sign!(@get_request, 'key-id')
       end
       
-      it "should prefix the Authorization Header with Hmac::Auth" do
+      it "should prefix the Authorization Header with KingHmac::Auth" do
         @authhmac.sign!(@get_request, 'key-id')
-        @get_request['Authorization'].should match(/^Hmac::Auth /)
+        @get_request['Authorization'].should match(/^KingHmac::Auth /)
       end
 
       it "should include the key id as the first part of the Authorization header value" do
         @authhmac.sign!(@get_request, 'key-id')
-        @get_request['Authorization'].should match(/^Hmac::Auth key-id:/)
+        @get_request['Authorization'].should match(/^KingHmac::Auth key-id:/)
       end
       
       it "should include the base64 encoded HMAC signature as the last part of the header value" do
@@ -102,7 +102,7 @@ describe Hmac::Auth do
       it "should create a complete signature" do
         @store.should_receive(:[]).with('my-key-id').and_return('secret')
         @authhmac.sign!(@put_request, "my-key-id")
-        @put_request['Authorization'].should == "Hmac::Auth my-key-id:71wAJM4IIu/3o6lcqx/tw7XnAJs="
+        @put_request['Authorization'].should == "KingHmac::Auth my-key-id:71wAJM4IIu/3o6lcqx/tw7XnAJs="
       end
     end
 
@@ -112,7 +112,7 @@ describe Hmac::Auth do
           :service_id => 'MyService',
           :signature => CustomSignature
         }
-        @authhmac = Hmac::Auth.new(@store, @options)
+        @authhmac = KingHmac::Auth.new(@store, @options)
       end
 
       it "should prefix the Authorization header with custom service id" do
@@ -131,7 +131,7 @@ describe Hmac::Auth do
   describe "authenticated?" do
     before(:each) do
       @credentials = load_fixture
-      @authhmac = Hmac::Auth.new(@credentials)
+      @authhmac = KingHmac::Auth.new(@credentials)
       @request = Net::HTTP::Get.new("/path/to/get?foo=bar&bar=foo", 'date' => "Thu, 10 Jul 2008 03:29:56 GMT")
     end
     
@@ -145,17 +145,17 @@ describe Hmac::Auth do
     end
     
     it "should return false when the access key id can't be found" do
-      @request['Authorization'] = 'Hmac::Auth missing-key:blah'
+      @request['Authorization'] = 'KingHmac::Auth missing-key:blah'
       @authhmac.authenticated?(@request).should be_false
     end    
     
     it "should return false when there is no hmac" do
-      @request['Authorization'] = 'Hmac::Auth missing-key:'
+      @request['Authorization'] = 'KingHmac::Auth missing-key:'
       @authhmac.authenticated?(@request).should be_false
     end
     
     it "should return false when the hmac doesn't match" do
-      @request['Authorization'] = 'Hmac::Auth access key 1:blah'
+      @request['Authorization'] = 'KingHmac::Auth access key 1:blah'
       @authhmac.authenticated?(@request).should be_false
     end
     
@@ -180,16 +180,16 @@ describe Hmac::Auth do
 
       it "should return false for invalid service id" do
         @authhmac.sign!(@request, 'access key 1')
-        Hmac::Auth.new(@credentials, @options.except(:signature)).authenticated?(@request).should be_false
+        KingHmac::Auth.new(@credentials, @options.except(:signature)).authenticated?(@request).should be_false
       end
 
       it "should return false for request using default CanonicalString signature" do
         @authhmac.sign!(@request, 'access key 1')
-        Hmac::Auth.new(@credentials, @options.except(:service_id)).authenticated?(@request).should be_false
+        KingHmac::Auth.new(@credentials, @options.except(:service_id)).authenticated?(@request).should be_false
       end
       
       it "should return true when valid" do
-        @authhmac = Hmac::Auth.new(@credentials, @options)
+        @authhmac = KingHmac::Auth.new(@credentials, @options)
         @authhmac.sign!(@request, 'access key 1')
         @authhmac.authenticated?(@request).should be_true
       end
@@ -198,7 +198,7 @@ describe Hmac::Auth do
   
   describe "#sign! with YAML credentials" do
     before(:each) do
-      @authhmac = Hmac::Auth.new(load_fixture)
+      @authhmac = KingHmac::Auth.new(load_fixture)
       @request = Net::HTTP::Get.new("/path/to/get?foo=bar&bar=foo", 'date' => "Thu, 10 Jul 2008 03:29:56 GMT")
     end
     
@@ -208,60 +208,60 @@ describe Hmac::Auth do
     
     it "should sign with the secret" do
       @authhmac.sign!(@request, "access key 1")
-      @request['Authorization'].should == "Hmac::Auth access key 1:ovwO0OBERuF3/uR3aowaUCkFMiE="
+      @request['Authorization'].should == "KingHmac::Auth access key 1:ovwO0OBERuF3/uR3aowaUCkFMiE="
     end
     
     it "should sign with the other secret" do
       @authhmac.sign!(@request, "access key 2")
-      @request['Authorization'].should == "Hmac::Auth access key 2:vT010RQm4IZ6+UCVpK2/N0FLpLw="
+      @request['Authorization'].should == "KingHmac::Auth access key 2:vT010RQm4IZ6+UCVpK2/N0FLpLw="
     end
   end
   
-  describe Hmac::CanonicalString do
+  describe KingHmac::CanonicalString do
     it "should include the http verb when it is GET" do
       request = Net::HTTP::Get.new("/")
-      Hmac::CanonicalString.new(request).should match(/GET/)
+      KingHmac::CanonicalString.new(request).should match(/GET/)
     end
     
     it "should include the http verb when it is POST" do
       request = Net::HTTP::Post.new("/")
-      Hmac::CanonicalString.new(request).should match(/POST/)
+      KingHmac::CanonicalString.new(request).should match(/POST/)
     end
     
     it "should include the content-type" do
       request = Net::HTTP::Put.new("/", {'Content-Type' => 'application/xml'})
-      Hmac::CanonicalString.new(request).should match(/application\/xml/)
+      KingHmac::CanonicalString.new(request).should match(/application\/xml/)
     end
     
     it "should include the content-type even if the case is messed up" do
       request = Net::HTTP::Put.new("/", {'cOntent-type' => 'text/html'})
-      Hmac::CanonicalString.new(request).should match(/text\/html/)
+      KingHmac::CanonicalString.new(request).should match(/text\/html/)
     end
     
     it "should include the content-md5" do
       request = Net::HTTP::Put.new("/", {'Content-MD5' => 'skwkend'})
-      Hmac::CanonicalString.new(request).should match(/skwkend/)
+      KingHmac::CanonicalString.new(request).should match(/skwkend/)
     end    
     
     it "should include the content-md5 even if the case is messed up" do
       request = Net::HTTP::Put.new("/", {'content-md5' => 'adsada'})
-      Hmac::CanonicalString.new(request).should match(/adsada/)
+      KingHmac::CanonicalString.new(request).should match(/adsada/)
     end
     
     it "should include the date" do
       date = Time.now.httpdate
       request = Net::HTTP::Put.new("/", {'Date' => date})
-      Hmac::CanonicalString.new(request).should match(/#{date}/)
+      KingHmac::CanonicalString.new(request).should match(/#{date}/)
     end
     
     it "should include the request path" do
       request = Net::HTTP::Get.new("/path/to/file")
-      Hmac::CanonicalString.new(request).should match(/\/path\/to\/file[^?]?/)
+      KingHmac::CanonicalString.new(request).should match(/\/path\/to\/file[^?]?/)
     end
     
     it "should ignore the query string of the request path" do
       request = Net::HTTP::Get.new("/other/path/to/file?query=foo")
-      Hmac::CanonicalString.new(request).should match(/\/other\/path\/to\/file[^?]?/)
+      KingHmac::CanonicalString.new(request).should match(/\/other\/path\/to\/file[^?]?/)
     end
     
     it "should build the correct string" do
@@ -270,18 +270,18 @@ describe Hmac::Auth do
                                     'content-type' => 'text/plain', 
                                     'content-md5' => 'blahblah', 
                                     'date' => date)
-      Hmac::CanonicalString.new(request).should == "PUT\ntext/plain\nblahblah\n#{date}\n/path/to/put"
+      KingHmac::CanonicalString.new(request).should == "PUT\ntext/plain\nblahblah\n#{date}\n/path/to/put"
     end
     
     it "should build the correct string when some elements are missing" do
       date = Time.now.httpdate
       request = Net::HTTP::Get.new("/path/to/get?foo=bar&bar=foo",
                                     'date' => date)
-      Hmac::CanonicalString.new(request).should == "GET\n\n\n#{date}\n/path/to/get"
+      KingHmac::CanonicalString.new(request).should == "GET\n\n\n#{date}\n/path/to/get"
     end
   end
 =begin
-  describe Hmac::Auth::Rails::ControllerFilter do
+  describe KingHmac::Auth::Rails::ControllerFilter do
     class TestController < ActionController::Base
       with_auth_hmac YAML.load(File.read(File.join(File.dirname(__FILE__), 'fixtures', 'credentials.yml'))),
         :only => [:index]
@@ -363,7 +363,7 @@ describe Hmac::Auth do
     describe TestController do
       it "should allow a request with the proper hmac" do
         request = ActionController::TestRequest.new
-        request.env['Authorization'] = "Hmac::Auth access key 1:6BVEVfAyIDoI3K+WallRMnDxROQ="
+        request.env['Authorization'] = "KingHmac::Auth access key 1:6BVEVfAyIDoI3K+WallRMnDxROQ="
         request.env['DATE'] = "Thu, 10 Jul 2008 03:29:56 GMT"
         request.action = 'index'
         request.path = "/index"
@@ -379,21 +379,21 @@ describe Hmac::Auth do
       it "should reject a request with the wrong hmac" do
         request = ActionController::TestRequest.new
         request.action = 'index'
-        request.env['Authorization'] = "Hmac::Auth bogus:bogus"
+        request.env['Authorization'] = "KingHmac::Auth bogus:bogus"
         TestController.new.process(request, ActionController::TestResponse.new).code.should == "401"
       end
 
-      it "should include a WWW-Authenticate header with the schema Hmac::Auth" do
+      it "should include a WWW-Authenticate header with the schema KingHmac::Auth" do
         request = ActionController::TestRequest.new
         request.action = 'index'
-        request.env['Authorization'] = "Hmac::Auth bogus:bogus"
-        TestController.new.process(request, ActionController::TestResponse.new).headers['WWW-Authenticate'].should == "Hmac::Auth"
+        request.env['Authorization'] = "KingHmac::Auth bogus:bogus"
+        TestController.new.process(request, ActionController::TestResponse.new).headers['WWW-Authenticate'].should == "KingHmac::Auth"
       end
 
       it "should include a default error message" do
         request = ActionController::TestRequest.new
         request.action = 'index'
-        request.env['Authorization'] = "Hmac::Auth bogus:bogus"
+        request.env['Authorization'] = "KingHmac::Auth bogus:bogus"
         TestController.new.process(request, ActionController::TestResponse.new).body.should == "HMAC Authentication failed"
       end
 
@@ -408,7 +408,7 @@ describe Hmac::Auth do
       it "should reject a request with a given message" do
         request = ActionController::TestRequest.new
         request.action = 'index'
-        request.env['Authorization'] = "Hmac::Auth bogus:bogus"
+        request.env['Authorization'] = "KingHmac::Auth bogus:bogus"
         MessageTestController.new.process(request, ActionController::TestResponse.new).body.should == "Stay away!"
       end
 
@@ -438,14 +438,14 @@ describe Hmac::Auth do
       it "should reject a request with the wrong hmac" do
         request = ActionController::TestRequest.new
         request.action = 'index'
-        request.env['Authorization'] = "Hmac::Auth bogus:bogus"
+        request.env['Authorization'] = "KingHmac::Auth bogus:bogus"
         CustomTestController.new.process(request, ActionController::TestResponse.new).code.should == "401"
       end
 
       it "should reject a request with a given message" do
         request = ActionController::TestRequest.new
         request.action = 'index'
-        request.env['Authorization'] = "Hmac::Auth bogus:bogus"
+        request.env['Authorization'] = "KingHmac::Auth bogus:bogus"
         CustomTestController.new.process(request, ActionController::TestResponse.new).body.should == "Stay away!"
       end
 
@@ -457,7 +457,7 @@ describe Hmac::Auth do
     end
   end
   
-  describe Hmac::Auth::Rails::ActiveResourceExtension do
+  describe KingHmac::Auth::Rails::ActiveResourceExtension do
     class TestResource < ActiveResource::Base
       with_auth_hmac("access_id", "secret")
       self.site = "http://localhost/"
@@ -475,7 +475,7 @@ describe Hmac::Auth do
         ActiveResource::HttpMock.respond_to do |mock|
           mock.get "/test_resources/1.xml", 
             {
-              'Authorization' => 'Hmac::Auth access_id:44dvKATf4xanDtypqEA0EFYvOgI=',
+              'Authorization' => 'KingHmac::Auth access_id:44dvKATf4xanDtypqEA0EFYvOgI=',
               'Accept' => 'application/xml',
               'Date' => "Thu, 10 Jul 2008 03:29:56 GMT"
             },

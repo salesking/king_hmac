@@ -1,5 +1,5 @@
 require 'rack/request'
-module Hmac
+module KingHmac
   module Rack
     class Middleware
 
@@ -13,15 +13,14 @@ module Hmac
         @app = app
         @opts = opts
         @plain_error = "HMAC Authentication failed. Get yourself a valid HMAC Key .. Dude .. or ask your admin to get you some credentials"
-        @authhmac = AuthHMAC.new(@opts['keys'])
+        @hmac_auth = KingHmac::Auth.new(@opts['keys'])
       end
 
       def call(env)
-        puts env.inspect
         path = env['PATH_INFO']
         do_hmac_check = @opts['only'].detect{|i| path.include?(i) }
         if do_hmac_check
-          unless hmac_authenticated?(Rack::Request.new(env))
+          unless hmac_authenticated?(::Rack::Request.new(env))
             headers = {'Content-Type' => "text/plain",
                       'Content-Length' => "#{@plain_error.length}",
                       'WWW-Authenticate' => 'AuthHMAC'
@@ -36,7 +35,7 @@ module Hmac
       end
 
       def hmac_authenticated?(request)
-        @authhmac.authenticated?(request)
+        @hmac_auth.authenticated?(request)
       end
 
 

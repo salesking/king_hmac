@@ -10,7 +10,7 @@ require 'action_controller/test_process'
 require 'active_resource'
 require 'active_resource/http_mock'
 
-require "#{File.dirname(__FILE__)}/../lib/hmac"
+require "#{File.dirname(__FILE__)}/../lib/king_hmac"
 
 
 
