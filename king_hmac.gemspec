@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Georg Leciejewski"]
-  s.date = %q{2010-04-10}
+  s.date = %q{2010-04-23}
   s.description = %q{A Ruby Gem for authenticating HTTP requests using a HMAC}
   s.email = %q{gl@salesking.eu}
   s.extra_rdoc_files = [
@@ -22,6 +22,7 @@ Gem::Specification.new do |s|
      "Rakefile",
      "VERSION",
      "init.rb",
+     "king_hmac.gemspec",
      "lib/king_hmac.rb",
      "lib/king_hmac/auth.rb",
      "lib/king_hmac/cannonical_string.rb",

@@ -1,8 +1,8 @@
-= king-hmac
+= king_hmac
 
 This gem started with a copy & disection of auth-hmac gem v1.1.1
 
-king-hmac is a Ruby implementation of HMAC[http://en.wikipedia.org/wiki/HMAC]
+king_hmac is a Ruby implementation of HMAC[http://en.wikipedia.org/wiki/HMAC]
 based authentication of HTTP requests. HMAC authentication involves a client and
 server having a shared secret key. When sending the request the client, signs
 the request using the secret key. This involves building a canonical
@@ -26,12 +26,12 @@ but without the Amazon specific components, i.e. it is HMAC for the rest of us.
 
 == INSTALL:
 Gem hosted on gemcutter.org
-  sudo gem install king-hmac
+  sudo gem install king_hmac
 
 == Source Code
-See http://github.com/salesking/king-hmac
+See http://github.com/salesking/king_hmac
 The source repository:
-  git clone git://github.com/salesking/king-hmac.git
+  git clone git://github.com/salesking/king_hmac.git
 
 == When to use it?
 
@@ -126,7 +126,7 @@ following:
 
 The result is then Base64 encoded and added to the headers of the request as the
 +Authorization+ header in the format:
-  Authorization: KingHmac::Auth <access_id>:<base64 encoded king-hmac>
+  Authorization: KingHmac::Auth <access_id>:<base64 encoded king_hmac>
 
 When authenaticating a request, KingHmac::Auth looks for the Authorization
 header in the above format, parses out the components, regenerates a HMAC for
@@ -140,6 +140,6 @@ KingHmac::Auth style requests in other languages.
 
 == Authors and Contributors
 
-This gem started with a copy & disection of auth-king-hmac gem v1.1.1.
+This gem started with a copy & disection of auth-king_hmac gem v1.1.1.
 Most of this doc was written by Sean Geoghegan
-auth-king-hmac was developed by Sean Geoghegan http://rubyforge.org/projects/auth-king-hmac &&  by Peerworks[http://peerworks.org].
+auth-king_hmac was developed by Sean Geoghegan http://rubyforge.org/projects/auth-king_hmac &&  by Peerworks[http://peerworks.org].
